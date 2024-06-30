@@ -1,9 +1,9 @@
 #include <random>
 #include <cmath>
 
-long long pow_mod(long long p, long long n, long long m) // p^n % m
+__int128_t pow_mod(long long p, long long n, long long m) // p^n % m
 {
-    long long p_pow = p % m;
+    __int128_t p_pow = p % m;
     long long cur = 1;
     while (n > 0) // binary exponentiation
     {
@@ -24,7 +24,9 @@ double rand_num_gen(int i)
     static long long c = 1;
 
     static long long z0 = rand() * m;
-    long long z = (pow_mod(a, i, m)*z0 + ((pow_mod(a, i, (m*(a-1))) - 1) / (a - 1)) *c) % m;
+    long long p1 = (pow_mod(a, i, m)*z0) % m;
+    long long p2 = ((((pow_mod(a, i, (m*(a-1))) - 1) % (m*(a-1))) / (a - 1)) * c) % m;
+    long long z = (p1 + p2) % m;
     return (double)z / m;
 }
 
@@ -38,10 +40,10 @@ double interp(double p1, double p2, double x)
 
 int main()
 {
-    srand(2);
+    srand(200);
     int x = 0, y = 15, amp = 20, wl = 5;
     double fq = 1/wl;
-    int i = 0;
+    int i = 1;
     double a = rand_num_gen(i++);
     double b = rand_num_gen(i++);
     while (x < 50)

@@ -22,7 +22,7 @@ double interp(double p1, double p2, double x)
 
 int main()
 {
-    srand(2);
+    srand(20);
     int x = 0, y = 15, amp = 20, wl = 5;
     double fq = 1/wl;
     double a = rand_num_gen();
