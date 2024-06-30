@@ -1,14 +1,30 @@
 #include <random>
 #include <cmath>
 
-double rand_num_gen()
+long long pow_mod(long long p, long long n, long long m) // p^n % m
+{
+    long long p_pow = p % m;
+    long long cur = 1;
+    while (n > 0) // binary exponentiation
+    {
+        if (n % 2)
+        {
+            cur = (cur * p_pow) % m;
+        }
+        n >>= 1;
+        p_pow = (p_pow*p_pow) % m; // squaring
+    }
+    return cur;
+}
+
+double rand_num_gen(int i)
 {
     static long long m = 4294967296;
     static long long a = 1664525;
     static long long c = 1;
 
-    static long long z = rand() * m;
-    z = (a * z + c) % m;
+    static long long z0 = rand() * m;
+    long long z = (pow_mod(a, i, m)*z0 + ((pow_mod(a, i, (m*(a-1))) - 1) / (a - 1)) *c) % m;
     return (double)z / m;
 }
 
@@ -25,14 +41,15 @@ int main()
     srand(2);
     int x = 0, y = 15, amp = 20, wl = 5;
     double fq = 1/wl;
-    double a = rand_num_gen();
-    double b = rand_num_gen();
+    int i = 0;
+    double a = rand_num_gen(i++);
+    double b = rand_num_gen(i++);
     while (x < 50)
     {
         if (x % wl == 0)
         {
             a = b;
-            b = rand_num_gen();
+            b = rand_num_gen(i++);
             y = 15 + a * amp;
             printf("\n%d ", y);
         }
