@@ -7,7 +7,7 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int SQUARE_WIDTH = 10;
 const int SQUARE_HEIGHT_SEGMENTS = 10;
-const int CHUNK_SIZE = 16;
+const int CHUNK_SIZE = 32;
 const int NUM_CHUNKS = 64;
 const int NUM_OCTAVES = 3;
 const int NUM_SQUARES = SCREEN_WIDTH/SQUARE_WIDTH + 1;
@@ -70,18 +70,26 @@ int main(int argc, char* args[]) {
                 } else if (e.wheel.y < 0) { // Scroll down - screen right
                     offset += 10;
                 }
+            } else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                for (int i : heights_on_screen)
+                    std::cout << i << " ";
+                std::cout << std::endl;
             }
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black
         SDL_RenderClear(renderer);
 
-        int FIRST_CHUNK = (NUM_CHUNKS + offset/(SQUARE_WIDTH*CHUNK_SIZE) - 1) % NUM_CHUNKS;
+        int FIRST_CHUNK = -2;
         int leftpoint = offset - ((SQUARE_WIDTH*CHUNK_SIZE + offset) % (SQUARE_WIDTH*CHUNK_SIZE)) - SQUARE_WIDTH*CHUNK_SIZE;
-        if (offset != prev_offset)
-            heights_on_screen = proc_gen.proc_gen_heights(CHUNK_SIZE, (NUM_CHUNKS + offset/(SQUARE_WIDTH*CHUNK_SIZE) - 1) % NUM_CHUNKS, SCREEN_WIDTH/(CHUNK_SIZE*SQUARE_WIDTH) + 4);    
+        if (FIRST_CHUNK != (NUM_CHUNKS + offset/(SQUARE_WIDTH*CHUNK_SIZE) - 1) % NUM_CHUNKS)
+        {
+            FIRST_CHUNK = (NUM_CHUNKS + offset/(SQUARE_WIDTH*CHUNK_SIZE) - 1) % NUM_CHUNKS;
+            heights_on_screen = proc_gen.proc_gen_heights(CHUNK_SIZE, FIRST_CHUNK, SCREEN_WIDTH/(CHUNK_SIZE*SQUARE_WIDTH) + 4);    
+        }
         prev_offset = offset;
-        std::cout << offset;
+        // std::cout << offset << " - " << leftpoint << " ";
         // for (int i : heights_on_screen)
             // std::cout << i << " ";
         // std::cout << std::endl;
@@ -89,7 +97,7 @@ int main(int argc, char* args[]) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White
         for (int i = 0; i < heights_on_screen.size(); i++)
         {
-            SDL_Rect fillRect = {leftpoint + i * SQUARE_WIDTH, SCREEN_HEIGHT - heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS, SQUARE_WIDTH, heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS}; // (posx, posy, width, height)
+            SDL_Rect fillRect = {leftpoint + i * SQUARE_WIDTH - offset, SCREEN_HEIGHT - heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS, SQUARE_WIDTH, heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS}; // (posx, posy, width, height)
             SDL_RenderFillRect(renderer, &fillRect);
         }
         // long square_num = offset/SQUARE_WIDTH; // identify left most square that needs to be shown
