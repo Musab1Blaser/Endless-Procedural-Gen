@@ -1,7 +1,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_audio.h>
 #include <iostream>
-#include <random>
+#include <map>
 #include "perlin.hpp"
 
 const int SCREEN_WIDTH = 800;
@@ -94,6 +95,7 @@ int main(int argc, char* args[]) {
     SDL_Texture* grass_texture = nullptr;
 
     int offset = CHUNK_SIZE*SQUARE_WIDTH;
+    std::map<std::pair<int, int>, int> block_state; 
 
     if (argc > 1)
         offset = std::stoi(args[1]);
@@ -125,6 +127,23 @@ int main(int argc, char* args[]) {
                     // std::cout << i << " ";
                 // std::cout << std::endl;
             }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                int FIRST_CHUNK = (NUM_CHUNKS + offset/(SQUARE_WIDTH*CHUNK_SIZE) - 1) % NUM_CHUNKS;
+                int leftpoint = offset - ((SQUARE_WIDTH*CHUNK_SIZE + offset) % (SQUARE_WIDTH*CHUNK_SIZE)) - SQUARE_WIDTH*CHUNK_SIZE;
+
+                int blockX = (x - leftpoint + offset) / SQUARE_WIDTH;
+                int blockY = (SCREEN_HEIGHT - y)/SQUARE_HEIGHT_SEGMENTS;
+
+                if (heights_on_screen[blockX] >= blockY)
+                {
+                    int X = (FIRST_CHUNK*CHUNK_SIZE + blockX) % (NUM_CHUNKS*CHUNK_SIZE);
+                    block_state[{X, blockY}] = 0;
+                    std::cout << X << " " << blockY << std::endl;
+                }
+            }
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black
@@ -151,12 +170,21 @@ int main(int argc, char* args[]) {
             // SDL_Rect destRect = {leftpoint + i * SQUARE_WIDTH - offset, SCREEN_HEIGHT - heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS, SQUARE_WIDTH, heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS};
 
             SDL_Rect grass_srcRect = {0, 0, 380, 380};
-            SDL_RenderCopy(renderer, grass_texture, &grass_srcRect, &destRect);
+            if (!block_state.count({(FIRST_CHUNK*CHUNK_SIZE + i) % (NUM_CHUNKS*CHUNK_SIZE), heights_on_screen[i] - 1}))
+                SDL_RenderCopy(renderer, grass_texture, &grass_srcRect, &destRect);
             
+            // if (i < 4)
+            // {
+            //     int X = (FIRST_CHUNK*CHUNK_SIZE + i) % NUM_CHUNKS*CHUNK_SIZE;
+            //     std::cout << X << " " << i << std::endl;
+
+            // }
             for (int j = 1; j < heights_on_screen[i]; j++)
             {
                 destRect.y += SQUARE_HEIGHT_SEGMENTS;
-                SDL_RenderCopy(renderer, dirt_texture, &dirt_srcRect, &destRect);
+                
+                if (!block_state.count({(FIRST_CHUNK*CHUNK_SIZE + i) % (NUM_CHUNKS*CHUNK_SIZE), heights_on_screen[i] - 1 - j}))
+                    SDL_RenderCopy(renderer, dirt_texture, &dirt_srcRect, &destRect);
             }
 
             // SDL_Rect fillRect = {leftpoint + i * SQUARE_WIDTH - offset, SCREEN_HEIGHT - heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS, SQUARE_WIDTH, heights_on_screen[i] * SQUARE_HEIGHT_SEGMENTS}; // (posx, posy, width, height)
