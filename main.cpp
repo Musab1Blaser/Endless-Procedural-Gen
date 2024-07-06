@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_audio.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <map>
 #include "perlin.hpp"
@@ -105,6 +105,11 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
+    int init2 = Mix_Init(8);
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+
+    Mix_Chunk * dirt_break = Mix_LoadWAV("dirt_break.mp3");
+
     Perlin proc_gen (NUM_OCTAVES, NUM_CHUNKS, CHUNK_SIZE);
     bool quit = false;
     SDL_Event e;
@@ -140,6 +145,8 @@ int main(int argc, char* args[]) {
                 if (heights_on_screen[blockX] >= blockY)
                 {
                     int X = (FIRST_CHUNK*CHUNK_SIZE + blockX) % (NUM_CHUNKS*CHUNK_SIZE);
+                    if (!block_state.count({X, blockY}))
+                        Mix_PlayChannel(-1, dirt_break, 0);
                     block_state[{X, blockY}] = 0;
                     std::cout << X << " " << blockY << std::endl;
                 }
