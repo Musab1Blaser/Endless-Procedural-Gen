@@ -1,10 +1,12 @@
 #include <random>
 #include <cmath>
 #include "perlin.hpp"
+#include <iostream>
 
 Perlin::Perlin(int octaves, long long NUM_CHUNKS, long long CHUNK_SIZE)
 {
-    srand(0);
+    // srand(0);
+    srand(static_cast<unsigned int>(time(0)));
     for (int i = 0; i < octaves; i++)
         octave_z0.push_back(rand() % m);
     this->NUM_CHUNKS = NUM_CHUNKS;
@@ -50,9 +52,12 @@ std::vector<int> Perlin::gen_octave(int octave, int start_x, int y, long long am
     double fq = 1/wl;
 
     // fill in left corner of chunk
-    int i = ((NUM_CHUNKS*CHUNK_SIZE + start_x - wl/2) % NUM_CHUNKS*CHUNK_SIZE) / wl + 1; // left most keypoint has i = 1
-    double a = rand_num_gen(octave, i++);
-    double b = rand_num_gen(octave, i++);
+    int i = ((NUM_CHUNKS*CHUNK_SIZE + start_x - wl/2) % (NUM_CHUNKS*CHUNK_SIZE)) / wl + 1; // left most keypoint has i = 1
+    // printf("%i : %i - %i\n", start_x, i, wl);
+    double a = rand_num_gen(octave, i);
+    i = i % ((NUM_CHUNKS*CHUNK_SIZE)/wl) + 1; // move to next - loop around if required 
+    double b = rand_num_gen(octave, i);
+    i = i % ((NUM_CHUNKS*CHUNK_SIZE)/wl) + 1; // move to next - loop around if required 
 
      
     int x = start_x; // left corner of chunk
@@ -62,8 +67,8 @@ std::vector<int> Perlin::gen_octave(int octave, int start_x, int y, long long am
         {
             cur_octave_heights.push_back(y + b*amp);
             a = b;
+            b = rand_num_gen(octave, i);
             i = i % ((NUM_CHUNKS*CHUNK_SIZE)/wl) + 1; // move to next - loop around if required 
-            b = rand_num_gen(octave, i++);
         }
         else
         {
@@ -77,7 +82,7 @@ std::vector<int> Perlin::gen_octave(int octave, int start_x, int y, long long am
 std::vector<int> Perlin::proc_gen_heights(const int CHUNK_SIZE, const int FIRST_CHUNK, const int NUM_CHUNKS)
 {
     int amp = 16;
-    std::vector<int> heights (CHUNK_SIZE*NUM_CHUNKS, 25); // use mean value of 25
+    std::vector<int> heights (CHUNK_SIZE*NUM_CHUNKS, 25 - amp); // use mean value of 25
     int wl = CHUNK_SIZE;
     for (int i = 0; i < octave_z0.size(); i++)
     {
