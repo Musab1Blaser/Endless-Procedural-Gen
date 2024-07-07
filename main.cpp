@@ -13,7 +13,7 @@ const int SCREEN_HEIGHT = 600;
 const int SQUARE_WIDTH = 10;
 const int SQUARE_HEIGHT_SEGMENTS = 10;
 const long long CHUNK_SIZE = pow(2,5); // recommended 32
-const long long NUM_CHUNKS = pow(2,50); // arbitrary - as long as CHUNK_SIZE*NUM_CHUNKS is less than 2^30
+const long long NUM_CHUNKS = pow(2, 50); // arbitrary - as long as CHUNK_SIZE*NUM_CHUNKS is less than 2^55
 const int NUM_OCTAVES = 3;
 const int NUM_SQUARES = SCREEN_WIDTH/SQUARE_WIDTH + 1;
 
