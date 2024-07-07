@@ -4,8 +4,7 @@ This is a small side project of mine with the goal of learning more about random
 ## How it works
 The viewport position is stored. Only chunks that have coordinates that lie within/near the viewport are generated to save memory. If you leave a chunk and come back to it later, it will still be the same chunk despite regeneration because chunks are generated through a random number and the random number for each chunk is recovered/recalculated at the time of generating the chunk. The user effects on the terrain are maintained by storing them in a dictionary and applying them on the terrain after it is generated.
 
-## Project Overview Video:
-
+#### [Project Overview Video](https://www.youtube.com/watch?v=xKbcATp5-b0)
 
 ## How to use
 Compilation command (Linux) - requires SDL2, SDL_image and SDL_mixer: <br>
